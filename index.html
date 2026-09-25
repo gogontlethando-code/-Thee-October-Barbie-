@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thando's October Barbie Decoder</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+            text-align: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            max-width: 400px;
+            width: 90%;
+        }
+        h1 { font-size: 2.2rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        h2 { font-size: 1.2rem; opacity: 0.9; margin-bottom: 25px; }
+        input {
+            width: 85%;
+            padding: 12px;
+            border: none;
+            border-radius: 25px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #fff;
+            color: #ff5e7e;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        button:hover { transform: scale(1.05); }
+        .result {
+            margin-top: 25px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            min-height: 40px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎀 Thando 🎀</h1>
+        <h2>The October Barbie's Decoder Ring</h2>
+        <input type="text" id="codeInput" placeholder="Paste Secret Code Here">
+        <br>
+        <button onclick="decodeMessage()">💕 Decode Message 💕</button>
+        <div class="result" id="output"></div>
+    </div>
+
+    <script>
+        function decodeMessage() {
+            const input = document.getElementById('codeInput').value.trim();
+            const outputDiv = document.getElementById('output');
+            if(input === "V2VsY29tZSB0byBUaGFuZG8gdGhlIE9jdG9iZXIgYmFyYmll4oCZcyBXaXNobGlzdA==") {
+                outputDiv.innerHTML = "🎂 Welcome to Thando the October barbie’s Wishlist 💖✨";
+            } else if (input === "") {
+                outputDiv.innerHTML = "Please paste a code first! 😘";
+            } else {
+                try {
+                    outputDiv.innerHTML = "✨ " + atob(input) + " ✨";
+                } catch(e) {
+                    outputDiv.innerHTML = "Hmm, that code doesn't seem to work! 👁️👄👁️";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
