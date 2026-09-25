@@ -1,33 +1,311 @@
-function decodeMessage() {
-    const rawInput = document.getElementById('codeInput').value;
-    const input = rawInput.replace(/\s+/g, ''); 
-    const outputDiv = document.getElementById('output');
-    
-    if (rawInput.trim() === "") {
-        outputDiv.innerHTML = "Please paste a code first! 💜";
-        return;
-    }
-
-    // Exact code strings your app will check for
-    const code1 = "V2VsY29tZSB0byBUaGFuZG8gdGhlIE9jdG9iZXIgYmFyYmll4oCZcyBXaXNobGlzdA==";
-    const code2 = "VGhhbmRvIGlzIG15IGZyaWVuZCBhbmQgaSBsb3ZlIGhlcg==";
-    const code3 = "V2Vsy29tZSB0byBUaGFuZG8gdGhlIE9jdG9iZXIgYmFyYmllG9hGuzG8gdGhlIE9jdG9iZXlg9iZXlgFymll4c"; // The one from your screen
-
-    if (input === code1) {
-        outputDiv.innerHTML = "🎂 Welcome to Thando the October barbie’s Wishlist 🦄✨";
-    } else if (input === code2) {
-        outputDiv.innerHTML = "💖 Thando is my friend and i love her 💖";
-    } else if (input.includes("V2Vsy29tZ") || input === code3) {
-        outputDiv.innerHTML = "🎂 Welcome to Thando's October Barbie Wishlist! 🎉";
-    } else {
-        try {
-            const decoded = decodeURIComponent(atob(input).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            
-            outputDiv.innerHTML = "✨ " + decoded + " ✨";
-        } catch(e) {
-            outputDiv.innerHTML = "Hmm, that code doesn't seem to work! 👁️👄👁️";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thando's October Barbie Wishlist & Decoder</title>
+    <style>
+        :root {
+            --primary-pink: #ff85a2;
+            --barbie-pink: #f43f5e;
+            --magic-purple: #7b2cbf;
+            --soft-purple: #9d4edd;
         }
-    }
-}
+        
+        body {
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #glitterCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 35px 25px;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 { 
+            font-size: 2.4rem; 
+            margin-top: 0;
+            margin-bottom: 5px; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.15); 
+            color: #fff; 
+        }
+
+        h2 { 
+            font-size: 1.1rem; 
+            opacity: 0.9; 
+            margin-top: 0;
+            margin-bottom: 25px; 
+            color: #fff; 
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+
+        input {
+            width: 90%;
+            padding: 14px;
+            border: none;
+            border-radius: 25px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            color: #4a154b;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            box-shadow: 0 4px 20px rgba(123, 44, 191, 0.4);
+        }
+
+        button {
+            background-color: var(--magic-purple);
+            color: #fff;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        button:hover { 
+            transform: scale(1.03); 
+            background-color: var(--soft-purple); 
+        }
+
+        .result {
+            margin-top: 25px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            min-height: 40px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s ease;
+            color: #fff;
+            word-wrap: break-word;
+            padding: 0 10px;
+        }
+
+        .wishlist-card {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .wishlist-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+
+        .wishlist-item {
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 5px solid var(--primary-pink);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .wishlist-item:hover {
+            transform: translateX(4px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .wishlist-item.claimed {
+            border-left-color: #2ec4b6;
+            background: rgba(46, 196, 182, 0.15);
+            opacity: 0.8;
+        }
+        
+        .wishlist-item.claimed .item-text {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .item-text {
+            font-size: 1.05rem;
+            font-weight: 500;
+            line-height: 1.4;
+            padding-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .claim-badge {
+            background: rgba(255, 255, 255, 0.25);
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-item.claimed .claim-badge {
+            background: #2ec4b6;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(46, 196, 182, 0.4);
+        }
+
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="glitterCanvas"></canvas>
+
+    <!-- DECODER SECTION -->
+    <div class="container">
+        <h1>🔮 Thando 🔮</h1>
+        <h2>The October Barbie's Decoder Ring</h2>
+        <input type="text" id="codeInput" placeholder="Paste Secret Code Here">
+        <br>
+        <button onclick="decodeMessage()">✨ Decode Message ✨</button>
+        <div class="result" id="output"></div>
+    </div>
+
+    <!-- WISHLIST SECTION -->
+    <div class="container wishlist-card">
+        <div class="section-title">🎂 October Barbie Wishlist 🦄</div>
+        <ul class="wishlist-list" id="wishlistContainer">
+            <!-- Items load dynamically via JS -->
+        </ul>
+    </div>
+
+    <script>
+        function decodeMessage() {
+            const rawInput = document.getElementById('codeInput').value;
+            const input = rawInput.replace(/\s+/g, ''); 
+            const outputDiv = document.getElementById('output');
+            
+            if (rawInput.trim() === "") {
+                outputDiv.innerHTML = "Please paste a code first! 💜";
+                return;
+            }
+
+            const code1 = "V2VsY29tZSB0byBUaGFuZG8gdGhlIE9jdG9iZXIgYmFyYmll4oCZcyBXaXNobGlzdA==";
+            const code2 = "VGhhbmRvIGlzIG15IGZyaWVuZCBhbmQgaSBsb3ZlIGhlcg==";
+
+            if (input === code1) {
+                outputDiv.innerHTML = "🎂 Welcome to Thando the October barbie’s Wishlist 🦄✨";
+            } else if (input === code2) {
+                outputDiv.innerHTML = "💖 Thando is my friend and i love her 💖";
+            } else {
+                try {
+                    const decoded = decodeURIComponent(atob(input).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    
+                    outputDiv.innerHTML = "✨ " + decoded + " ✨";
+                } catch(e) {
+                    outputDiv.innerHTML = "Hmm, that code doesn't seem to work! 👁️👄👁️";
+                }
+            }
+        }
+
+        // --- WISHLIST ARRAY DATABASE ---
+        const myWishlist = [
+            "Pierre Cardin shoes (from JB Sports) 👟",
+            "Handkerchief Skirt (sz 24/26, solid color or German print) 👗",
+            "Cropped jean jacket (not light blue, grey, or black - sz S) 🧥",
+            "Yardley Gorgeous in Bloom perfume 🌸",
+            "DH wallet (brown and beige) 👝",
+            "Hand chain or Bracelet set ⛓️💖",
+            "German print apron with my name engraved on it 🧵"
+        ];
+
+        function loadWishlist() {
+            const container = document.getElementById('wishlistContainer');
+            container.innerHTML = ""; 
+            
+            myWishlist.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'wishlist-item';
+                li.id = `item-${index}`;
+                li.innerHTML = `
+                    <span class="item-text">${item}</span>
+                    <span class="claim-badge" id="badge-${index}">Claim ✨</span>
+                `;
+                
+                li.addEventListener('click', () => {
+                    li.classList.toggle('claimed');
+                    const badge = document.getElementById(`badge-${index}`);
+                    if(li.classList.contains('claimed')) {
+                        badge.innerHTML = "Claimed! 🎉";
+                    } else {
+                        badge.innerHTML = "Claim ✨";
+                    }
+                });
+
+                container.appendChild(li);
+            });
+        }
+
+        // --- GLITTER BACKGROUND ENGINE ---
+        const canvas = document.getElementById('glitterCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        const colors = ['#ff85a2', '#f43f5e', '#fbc2eb', '#ffffff', '#fff0f3'];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class StarParticle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height - canvas.height;
+                this.size = Math.random() * 4 + 1;
+                this.speedY = Math.random() * 1.5 + 0.5;
